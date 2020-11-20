@@ -36,7 +36,7 @@ router.get('/', function (req, res) {
             } else {
                 // Return all groups for the user if group id is null
                 if (groupId == null) {
-                    meetupGroupDB.getGroupsForUser(foundUser.userId, function (userGroups) {
+                    meetupGroupDB.getGroupsForUserId(foundUser.userId, function (userGroups) {
                         res.status(StatusCodes.OK)
                         res.json({
                             'status': StatusCodes.OK,

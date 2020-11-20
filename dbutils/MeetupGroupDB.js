@@ -68,13 +68,13 @@ class MeetupGroupDB {
         })
     }
 
-    getGroupsForUser(user, callback) {
+    getGroupsForUserId(userId, callback) {
         this.MeetupGroup.find()
             .exec()
             .then(function (allGroups) {
                 let userGroups = [];
                 for (let i = 0; i < allGroups.length; i++) {
-                    if (allGroups[i].participantsIds.contains(user.userId)) {
+                    if (allGroups[i].participantIds.includes(userId)) {
                         userGroups.push(allGroups[i]);
                     }
                 }
