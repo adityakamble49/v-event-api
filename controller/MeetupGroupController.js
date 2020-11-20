@@ -41,10 +41,25 @@ router.get('/', function (req, res) {
                         res.json({
                             'status': StatusCodes.OK,
                             'data': {
-                                'user_groups': userGroups
+                                'groups': userGroups
                             }
                         });
                     });
+                } else {
+                    // Return group details for given group id
+                    meetupGroupDB.getGroupByGroupId(groupId, function (foundGroup) {
+                        let statusCode = StatusCodes.NOT_FOUND;
+                        if (foundGroup != null) {
+                            statusCode = StatusCodes.OK
+                        }
+                        res.status(statusCode)
+                        res.json({
+                            'status': statusCode,
+                            'data': {
+                                'group': foundGroup
+                            }
+                        })
+                    })
                 }
             }
         }
