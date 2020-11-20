@@ -96,6 +96,21 @@ class MeetupGroupDB {
             }
         });
     }
+
+    updateGroupDetails(updateGroup, callback) {
+        this.MeetupGroup.updateOne({groupId: updateGroup.groupId}, {
+            groupName: updateGroup.groupName,
+            groupDescription: updateGroup.groupDescription
+        })
+            .exec()
+            .then(function (updateInfo) {
+                if (updateInfo.ok === 1) {
+                    callback(true);
+                } else {
+                    callback(false);
+                }
+            });
+    }
 }
 
 module.exports = MeetupGroupDB;
