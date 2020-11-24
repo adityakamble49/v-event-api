@@ -286,5 +286,63 @@ router.put('/:groupId', function (req, res) {
     )
 });
 
+/**
+ * Delete Gropup
+ */
+router.delete('/:groupId', function (req, res) {
+    const path_params = req.params;
+    const headers = req.headers;
+
+    const authToken = headers.authorization;
+    const groupId = path_params.groupId;
+
+    userDB.getUserFromToken(authToken, function (foundUser) {
+            if (foundUser == null) {
+                res.status(StatusCodes.UNAUTHORIZED);
+                res.json({
+                    'status': StatusCodes.UNAUTHORIZED,
+                    'data': {
+                        'message': 'Auth Token Invalid! Authentication Failed'
+                    }
+                });
+            } else {
+                // Return group details for given group id
+                meetupGroupDB.getGroupByGroupId(groupId, function (foundGroup) {
+                    let statusCode = StatusCodes.INTERNAL_SERVER_ERROR;
+                    let message = ReasonPhrases.INTERNAL_SERVER_ERROR;
+
+                    if (foundGroup == null) {
+                        statusCode = StatusCodes.NOT_FOUND
+                        message = 'Group Not found'
+                        res.status(statusCode);
+                        res.json({
+                            'status': statusCode,
+                            'data': {'message': message}
+                        });
+                    } else if (foundGroup.creatorId !== foundUser.userId) {
+                        statusCode = StatusCodes.UNAUTHORIZED
+                        message = 'Only Group creator can delete the group'
+                        res.status(statusCode);
+                        res.json({
+                            'status': statusCode,
+                            'data': {'message': message}
+                        });
+                    } else {
+                        meetupGroupDB.deleteGroup(foundGroup, function (result) {
+                            statusCode = StatusCodes.OK
+                            message = 'Group Deleted Successfully'
+                            res.status(statusCode);
+                            res.json({
+                                'status': statusCode,
+                                'data': {'message': message}
+                            });
+                        });
+                    }
+                });
+            }
+        }
+    )
+});
+
 
 module.exports = router;

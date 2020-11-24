@@ -120,6 +120,14 @@ class MeetupGroupDB {
                 callback(result);
             })
     }
+
+    deleteGroup(group, callback) {
+        this.MeetupGroup.deleteOne({groupId: group.groupId})
+            .exec()
+            .then(function (result) {
+                callback(result)
+            });
+    }
 }
 
 module.exports = MeetupGroupDB;
