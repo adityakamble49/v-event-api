@@ -111,6 +111,15 @@ class MeetupGroupDB {
                 }
             });
     }
+
+    addParticipantIdToGroup(group, participantId, callback) {
+        group.participantIds.push(participantId);
+        this.MeetupGroup.updateOne({groupId: group.groupId}, {participantIds: group.participantIds})
+            .exec()
+            .then(function (result) {
+                callback(result);
+            })
+    }
 }
 
 module.exports = MeetupGroupDB;

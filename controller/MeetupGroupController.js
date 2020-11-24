@@ -134,6 +134,92 @@ router.post('/', function (req, res) {
     });
 });
 
+
+/**
+ * Add User to Group
+ */
+router.post('/participant', function (req, res) {
+    const body = req.body;
+    const headers = req.headers;
+
+    const authToken = headers.authorization;
+    const groupId = body.groupId;
+    const participantEmailId = body.participantEmailId;
+
+    userDB.getUserFromToken(authToken, function (foundUser) {
+        if (foundUser == null) {
+            res.status(StatusCodes.UNAUTHORIZED);
+            res.json({
+                'status': StatusCodes.UNAUTHORIZED,
+                'data': {
+                    'message': 'Auth Token Invalid! Authentication Failed'
+                }
+            });
+        } else {
+            // Return group details for given group id
+            meetupGroupDB.getGroupByGroupId(groupId, function (foundGroup) {
+                let statusCode = StatusCodes.INTERNAL_SERVER_ERROR;
+                let message = ReasonPhrases.INTERNAL_SERVER_ERROR;
+
+                if (foundGroup == null) {
+                    statusCode = StatusCodes.NOT_FOUND
+                    message = 'Group Not found'
+                    res.status(statusCode);
+                    res.json({
+                        'status': statusCode,
+                        'data': {'message': message}
+                    });
+
+                } else if (foundGroup.creatorId !== foundUser.userId) {
+                    statusCode = StatusCodes.UNAUTHORIZED
+                    message = 'Only Group creator can update group details'
+                    res.status(statusCode);
+                    res.json({
+                        'status': statusCode,
+                        'data': {'message': message}
+                    });
+                } else {
+                    userDB.getUser(participantEmailId, function (participant) {
+                        if (participant != null) {
+                            if (!foundGroup.participantIds.includes(participant.userId)) {
+                                meetupGroupDB.addParticipantIdToGroup(foundGroup, participant.userId, function (result) {
+                                    statusCode = StatusCodes.OK;
+                                    message = 'Participant added to Group';
+                                    res.status(statusCode);
+                                    res.json({
+                                        'status': statusCode,
+                                        'data': {
+                                            'message': message,
+                                        }
+                                    });
+                                });
+                            } else {
+                                statusCode = StatusCodes.FORBIDDEN;
+                                message = 'Participant already in Group';
+                                res.status(statusCode);
+                                res.json({
+                                    'status': statusCode,
+                                    'data': {
+                                        'message': message
+                                    }
+                                });
+                            }
+                        } else {
+                            res.status(StatusCodes.FORBIDDEN);
+                            res.json({
+                                'status': StatusCodes.FORBIDDEN,
+                                'data': {
+                                    'message': 'User Not found'
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    });
+});
+
 /**
  * Update Group Info - Name and Description
  */
