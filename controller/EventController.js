@@ -6,6 +6,8 @@ const StatusCodes = httpStatusCodes.StatusCodes;
 
 const UserDB = require('../dbutils/UserDB');
 const EventDB = require('../dbutils/EventDB');
+const MeetupGroupDB = require('../dbutils/MeetupGroupDB');
+
 const User = require("../model/User");
 const Event = require("../model/Event");
 const uuid4 = require("uuid4");
@@ -14,6 +16,8 @@ const urlencodedParser = bodyParser.urlencoded({extended: true});
 
 const userDB = new UserDB();
 const eventDB = new EventDB();
+const meetupGroupDB = new MeetupGroupDB();
+
 const router = express.Router();
 
 router.use(urlencodedParser);
@@ -76,7 +80,46 @@ router.post('/', function (req, res) {
     });
 });
 
-// Get All Events
+/**
+ * Get All Events for User
+ */
+router.get('/', function (req, res) {
+    const params = req.body;
+    const headers = req.headers;
+
+    const authToken = headers.authorization;
+
+    userDB.getUserFromToken(authToken, function (foundUser) {
+        if (foundUser == null) {
+            res.status(StatusCodes.UNAUTHORIZED);
+            res.json({
+                'status': StatusCodes.UNAUTHORIZED,
+                'data': {
+                    'message': 'Auth Token Invalid! Authentication Failed'
+                }
+            });
+        } else {
+            meetupGroupDB.getGroupsForUserId(foundUser.userId, function (foundGroups) {
+                let foundGroupIds = foundGroups.map(x => x.groupId);
+                eventDB.getEventsByMeetupGroupId(foundGroupIds)
+                    .then(function (foundEvents) {
+                    res.status(StatusCodes.OK);
+                    res.json({
+                        'status': StatusCodes.OK,
+                        'data': {
+                            'message': 'All events for User',
+                            'events': foundEvents
+                        }
+                    });
+                })
+            });
+        }
+    });
+});
+
+// Get All Events for Meetup Group
+
+
 // Get Events Created By User
 
 // Update Event
