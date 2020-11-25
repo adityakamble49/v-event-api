@@ -86,8 +86,11 @@ router.post('/', function (req, res) {
 router.get('/', function (req, res) {
     const params = req.body;
     const headers = req.headers;
+    const query_params = req.query;
 
     const authToken = headers.authorization;
+
+    const meetupGroupId = query_params.groupId;
 
     userDB.getUserFromToken(authToken, function (foundUser) {
         if (foundUser == null) {
@@ -98,26 +101,39 @@ router.get('/', function (req, res) {
                     'message': 'Auth Token Invalid! Authentication Failed'
                 }
             });
-        } else {
+        } else if (meetupGroupId == null) {
             meetupGroupDB.getGroupsForUserId(foundUser.userId, function (foundGroups) {
                 let foundGroupIds = foundGroups.map(x => x.groupId);
                 eventDB.getEventsByMeetupGroupId(foundGroupIds)
                     .then(function (foundEvents) {
+                        res.status(StatusCodes.OK);
+                        res.json({
+                            'status': StatusCodes.OK,
+                            'data': {
+                                'message': 'All events for User',
+                                'events': foundEvents
+                            }
+                        });
+                    })
+            });
+        } else {
+            // Get Events for Given Meetup Group
+            eventDB.getEventsByMeetupGroupId(meetupGroupId)
+                .then(function (foundEvents) {
                     res.status(StatusCodes.OK);
                     res.json({
                         'status': StatusCodes.OK,
                         'data': {
-                            'message': 'All events for User',
+                            'message': 'Events for Meetup Group',
                             'events': foundEvents
                         }
                     });
-                })
-            });
+                });
         }
     });
 });
 
-// Get All Events for Meetup Group
+//
 
 
 // Get Events Created By User
