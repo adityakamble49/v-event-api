@@ -42,9 +42,13 @@ class EventDB {
             .exec();
     }
 
-    getEventsCreatedByUser(user) {
-        return this.Event.find({creatorId: user.userId})
+    getEventsCreatedByUser(userId) {
+        return this.Event.find({creatorId: userId})
             .exec();
+    }
+
+    getEventsCreatedByUserForMeetupGroup(userId, groupId) {
+        return this.Event.find({creatorId: userId, eventMeetupGroupId: groupId})
     }
 
     getEventsByMeetupGroupId(meetupGroupId) {

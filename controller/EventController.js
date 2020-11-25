@@ -91,6 +91,7 @@ router.get('/', function (req, res) {
     const authToken = headers.authorization;
 
     const meetupGroupId = query_params.groupId;
+    const createdBy = query_params.createdBy;
 
     userDB.getUserFromToken(authToken, function (foundUser) {
         if (foundUser == null) {
@@ -101,7 +102,7 @@ router.get('/', function (req, res) {
                     'message': 'Auth Token Invalid! Authentication Failed'
                 }
             });
-        } else if (meetupGroupId == null) {
+        } else if (meetupGroupId == null && createdBy == null) {
             meetupGroupDB.getGroupsForUserId(foundUser.userId, function (foundGroups) {
                 let foundGroupIds = foundGroups.map(x => x.groupId);
                 eventDB.getEventsByMeetupGroupId(foundGroupIds)
@@ -116,7 +117,7 @@ router.get('/', function (req, res) {
                         });
                     })
             });
-        } else {
+        } else if (meetupGroupId != null && createdBy == null) {
             // Get Events for Given Meetup Group
             eventDB.getEventsByMeetupGroupId(meetupGroupId)
                 .then(function (foundEvents) {
@@ -125,6 +126,32 @@ router.get('/', function (req, res) {
                         'status': StatusCodes.OK,
                         'data': {
                             'message': 'Events for Meetup Group',
+                            'events': foundEvents
+                        }
+                    });
+                });
+        } else if (meetupGroupId == null && createdBy != null) {
+            // Get Events Created by User
+            eventDB.getEventsCreatedByUser(foundUser.userId)
+                .then(function (foundEvents) {
+                    res.status(StatusCodes.OK);
+                    res.json({
+                        'status': StatusCodes.OK,
+                        'data': {
+                            'message': 'Events Created by User',
+                            'events': foundEvents
+                        }
+                    });
+                });
+        } else if (meetupGroupId != null && createdBy != null) {
+            // Get Events Created by User
+            eventDB.getEventsCreatedByUserForMeetupGroup(foundUser.userId, meetupGroupId)
+                .then(function (foundEvents) {
+                    res.status(StatusCodes.OK);
+                    res.json({
+                        'status': StatusCodes.OK,
+                        'data': {
+                            'message': 'Events Created by User for Meetup Group',
                             'events': foundEvents
                         }
                     });
