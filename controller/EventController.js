@@ -7,6 +7,7 @@ const StatusCodes = httpStatusCodes.StatusCodes;
 const UserDB = require('../dbutils/UserDB');
 const EventDB = require('../dbutils/EventDB');
 const User = require("../model/User");
+const Event = require("../model/Event");
 const uuid4 = require("uuid4");
 
 const urlencodedParser = bodyParser.urlencoded({extended: true});
@@ -17,47 +18,68 @@ const router = express.Router();
 
 router.use(urlencodedParser);
 
-// Return list of all events
-router.get('/event', function (req, res) {
-    const param = req.body;
-    const authToken = param.authToken;
+/**
+ * Create Event for Meetup Group
+ */
+router.post('/', function (req, res) {
+    const params = req.body;
+    const headers = req.headers;
+
+    const authToken = headers.authorization;
+
+    const eventName = params.eventName;
+    const eventDescription = params.eventDescription;
+    const eventDate = params.eventDate;
+    const eventTime = params.eventTime;
+    const eventLink = params.eventLink;
+    const eventMeetupGroupId = params.eventMeetupGroupId;
 
     userDB.getUserFromToken(authToken, function (foundUser) {
         if (foundUser == null) {
-            res.status(StatusCodes.UNAUTHORIZED)
+            res.status(StatusCodes.UNAUTHORIZED);
             res.json({
                 'status': StatusCodes.UNAUTHORIZED,
                 'data': {
-                    'message': 'User Unauthorized'
+                    'message': 'Auth Token Invalid! Authentication Failed'
                 }
-            })
+            });
         } else {
-            // Get all events without group
-
+            eventDB.getEventsByMeetupGroupId(eventMeetupGroupId)
+                .then(function (foundEvents) {
+                    for (let i = 0; i < foundEvents.length; i++) {
+                        if (foundEvents[i].eventName === eventName) {
+                            res.status(StatusCodes.FORBIDDEN);
+                            res.json({
+                                'status': StatusCodes.FORBIDDEN,
+                                'data': {
+                                    'message': 'Event Name already exist'
+                                }
+                            });
+                            return;
+                        }
+                    }
+                    const event = new Event(uuid4(), foundUser.userId, eventName, eventDescription, eventDate, eventTime,
+                        eventLink, eventMeetupGroupId);
+                    eventDB.addEvent(event)
+                        .then(function (createdEvent) {
+                            res.status(StatusCodes.CREATED);
+                            res.json({
+                                'status': StatusCodes.CREATED,
+                                'data': {
+                                    'message': 'Event Created',
+                                    'event': createdEvent
+                                }
+                            });
+                        });
+                });
         }
-    })
-});
-
-// Create New Event
-router.post('/event', function (req, res) {
-    const params = req.body;
-    const emailId = params.emailId
-    const password = params.password
-
-    userDB.isValidUser(emailId, password, function (isAuthenticated, authToken, message) {
-        let statusCode = StatusCodes.UNAUTHORIZED;
-        if (isAuthenticated) {
-            statusCode = StatusCodes.OK;
-        }
-        res.status(statusCode)
-        res.json({
-            'status': statusCode,
-            'data': {
-                'auth_token': authToken,
-                'message': message
-            }
-        });
     });
 });
+
+// Get All Events
+// Get Events Created By User
+
+// Update Event
+// Delete Event
 
 module.exports = router;

@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const UserDB = require("./UserDB");
 const MeetupGroupDB = require("./MeetupGroupDB");
+const EventDB = require("./EventDB");
 
 /**
  * DBManager - To Manage General Database Related Tasks
@@ -12,6 +13,7 @@ class DBManager {
             DBManager.instance = this;
             this.userDB = new UserDB();
             this.meetupGroupDB = new MeetupGroupDB();
+            this.eventDB = new EventDB();
         }
 
         return DBManager.instance;
@@ -40,6 +42,7 @@ class DBManager {
     setupAllSchemas() {
         this.userDB.setupUserSchema();
         this.meetupGroupDB.setupMeetupGroupDB();
+        this.eventDB.setupEventSchema();
     }
 }
 

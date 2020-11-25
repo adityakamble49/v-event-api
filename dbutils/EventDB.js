@@ -14,7 +14,7 @@ class EventDB {
     }
 
     /**
-     * Setup Schema for User
+     * Setup Schema for Event
      */
     setupEventSchema() {
         let eventSchema = new mongoose.Schema({
@@ -38,30 +38,23 @@ class EventDB {
      * @param callback
      */
     getEvent(eventId, callback) {
-        this.Event.findOne({eventId: eventId})
-            .exec()
-            .then(function (foundEvent) {
-                callback(foundEvent);
-            });
+        return this.Event.findOne({eventId: eventId})
+            .exec();
     }
 
-    getEventsCreatedByUser(user, callback) {
-        this.Event.find({creatorId: user.userId})
-            .exec()
-            .then(function (userEvents) {
-                callback(userEvents)
-            })
+    getEventsCreatedByUser(user) {
+        return this.Event.find({creatorId: user.userId})
+            .exec();
     }
 
-    getEventsUserRsvp(user, callback) {
+    getEventsByMeetupGroupId(meetupGroupId) {
+        return this.Event.find({eventMeetupGroupId: meetupGroupId})
+            .exec();
     }
 
-    addEvent(event, callback) {
+    addEvent(event) {
         const newEvent = this.Event(event);
-        newEvent.save()
-            .then(function (insertedEvent) {
-                callback(insertedEvent);
-            });
+        return newEvent.save();
     }
 }
 
