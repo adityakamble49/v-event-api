@@ -278,6 +278,64 @@ router.put('/:eventId', function (req, res) {
         }
     })
 });
-// Delete Event
+
+
+/**
+ * Delete Event
+ */
+router.delete('/:eventId', function (req, res) {
+    const path_params = req.params;
+    const headers = req.headers;
+
+    const authToken = headers.authorization;
+
+    const eventId = path_params.eventId;
+
+    userDB.getUserFromToken(authToken, function (foundUser) {
+        if (foundUser == null) {
+            res.status(StatusCodes.UNAUTHORIZED);
+            res.json({
+                'status': StatusCodes.UNAUTHORIZED,
+                'data': {
+                    'message': 'Auth Token Invalid! Authentication Failed'
+                }
+            });
+        } else {
+            eventDB.getEvent(eventId)
+                .then(function (foundEvent) {
+                    if (foundEvent == null) {
+                        res.status(StatusCodes.NOT_FOUND);
+                        res.json({
+                            'status': StatusCodes.NOT_FOUND,
+                            'data': {
+                                'message': 'Event Not Found',
+                            }
+                        });
+                    } else if (foundEvent.creatorId === foundUser.userId) {
+                        eventDB.deleteEvent(eventId)
+                            .then(function (result) {
+                                res.status(StatusCodes.OK);
+                                res.json({
+                                    'status': StatusCodes.OK,
+                                    'data': {
+                                        'message': 'Event Deleted',
+                                        'result': result
+                                    }
+                                });
+                            });
+                    } else {
+                        res.status(StatusCodes.FORBIDDEN);
+                        res.json({
+                            'status': StatusCodes.FORBIDDEN,
+                            'data': {
+                                'message': 'Event Can be deleted by Creator only',
+                            }
+                        });
+                    }
+
+                })
+        }
+    })
+});
 
 module.exports = router;

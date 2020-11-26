@@ -70,6 +70,10 @@ class EventDB {
             eventLink: event.eventLink,
         })
     }
+
+    deleteEvent(eventId) {
+        return this.Event.deleteOne({eventId: eventId})
+    }
 }
 
 module.exports = EventDB;
