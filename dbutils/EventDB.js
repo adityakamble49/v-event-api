@@ -37,7 +37,7 @@ class EventDB {
      * @param eventId
      * @param callback
      */
-    getEvent(eventId, callback) {
+    getEvent(eventId) {
         return this.Event.findOne({eventId: eventId})
             .exec();
     }

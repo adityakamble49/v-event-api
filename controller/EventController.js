@@ -160,10 +160,51 @@ router.get('/', function (req, res) {
     });
 });
 
-//
+// Get Event Details
+router.get('/:eventId', function (req, res) {
+    const params = req.params;
+    const headers = req.headers;
 
+    const authToken = headers.authorization;
 
-// Get Events Created By User
+    const eventId = params.eventId;
+
+    userDB.getUserFromToken(authToken, function (foundUser) {
+        if (foundUser == null) {
+            res.status(StatusCodes.UNAUTHORIZED);
+            res.json({
+                'status': StatusCodes.UNAUTHORIZED,
+                'data': {
+                    'message': 'Auth Token Invalid! Authentication Failed'
+                }
+            });
+        } else {
+            eventDB.getEvent(eventId)
+                .then(function (foundEvent) {
+                    if (foundEvent != null) {
+                        res.status(StatusCodes.OK);
+                        res.json({
+                            'status': StatusCodes.OK,
+                            'data': {
+                                'message': 'Event Details',
+                                'event': foundEvent
+                            }
+                        });
+                    } else {
+                        res.status(StatusCodes.NOT_FOUND);
+                        res.json({
+                            'status': StatusCodes.NOT_FOUND,
+                            'data': {
+                                'message': 'Event Details not Found',
+                                'event': foundEvent
+                            }
+                        });
+                    }
+                })
+        }
+    });
+
+});
 
 // Update Event
 // Delete Event
