@@ -160,7 +160,9 @@ router.get('/', function (req, res) {
     });
 });
 
-// Get Event Details
+/**
+ * Get Event details
+ */
 router.get('/:eventId', function (req, res) {
     const params = req.params;
     const headers = req.headers;
