@@ -60,6 +60,16 @@ class EventDB {
         const newEvent = this.Event(event);
         return newEvent.save();
     }
+
+    updateEvent(event) {
+        return this.Event.updateOne({eventId: event.eventId}, {
+            eventName: event.eventName,
+            eventDescription: event.eventDescription,
+            eventDate: event.eventDate,
+            eventTime: event.eventTime,
+            eventLink: event.eventLink,
+        })
+    }
 }
 
 module.exports = EventDB;

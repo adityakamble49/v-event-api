@@ -206,7 +206,78 @@ router.get('/:eventId', function (req, res) {
 
 });
 
-// Update Event
+/**
+ * Update Event Details
+ */
+router.put('/:eventId', function (req, res) {
+    const params = req.params;
+    const body = req.body;
+    const headers = req.headers;
+
+    const authToken = headers.authorization;
+
+    const eventId = params.eventId;
+
+    const eventName = body.eventName;
+    const eventDescription = body.eventDescription;
+    const eventDate = body.eventDate;
+    const eventTime = body.eventTime;
+    const eventLink = body.eventLink;
+
+    userDB.getUserFromToken(authToken, function (foundUser) {
+        if (foundUser == null) {
+            res.status(StatusCodes.UNAUTHORIZED);
+            res.json({
+                'status': StatusCodes.UNAUTHORIZED,
+                'data': {
+                    'message': 'Auth Token Invalid! Authentication Failed'
+                }
+            });
+        } else {
+            eventDB.getEvent(eventId)
+                .then(function (foundEvent) {
+                    if (foundEvent == null) {
+                        res.status(StatusCodes.NOT_FOUND);
+                        res.json({
+                            'status': StatusCodes.NOT_FOUND,
+                            'data': {
+                                'message': 'Event Details not Found',
+                                'event': foundEvent
+                            }
+                        });
+                    } else if (foundEvent.creatorId === foundUser.userId) {
+
+                        foundEvent.eventName = eventName != null ? eventName : foundEvent.eventName;
+                        foundEvent.eventDescription = eventDescription != null ? eventDescription : foundEvent.eventDescription;
+                        foundEvent.eventDate = eventDate != null ? eventDate : foundEvent.eventDate;
+                        foundEvent.eventTime = eventTime != null ? eventTime : foundEvent.eventTime;
+                        foundEvent.eventLink = eventLink != null ? eventLink : foundEvent.eventLink;
+
+                        eventDB.updateEvent(foundEvent)
+                            .then(function (result) {
+                                res.status(StatusCodes.OK);
+                                res.json({
+                                    'status': StatusCodes.OK,
+                                    'data': {
+                                        'message': 'Event Details Updated',
+                                        'event': foundEvent,
+                                        'result': result
+                                    }
+                                });
+                            })
+                    } else {
+                        res.status(StatusCodes.FORBIDDEN);
+                        res.json({
+                            'status': StatusCodes.FORBIDDEN,
+                            'data': {
+                                'message': 'Event Can be updated by Creator Only',
+                            }
+                        });
+                    }
+                });
+        }
+    })
+});
 // Delete Event
 
 module.exports = router;
