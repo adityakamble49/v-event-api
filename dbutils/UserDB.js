@@ -46,7 +46,7 @@ class UserDB {
     isValidUser(emailId, password, callback) {
         this.getUser(emailId, function (user) {
             if (user != null && user.password === password) {
-                callback(true, user.authToken, "User Login Successful");
+                callback(true, user, "User Login Successful");
             } else if (user != null && user.password !== password) {
                 callback(false, null, "Password Invalid");
             } else {
@@ -70,10 +70,10 @@ class UserDB {
                 const newUser = userDBContext.User(user);
                 newUser.save()
                     .then(function (insertedUser) {
-                        callback(true, insertedUser.authToken);
+                        callback(true, insertedUser);
                     })
             } else {
-                callback(false, 'User Already Exist');
+                callback(false, null, 'User Already Exist');
             }
         })
     }

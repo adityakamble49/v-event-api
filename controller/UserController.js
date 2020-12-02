@@ -20,7 +20,7 @@ router.post('/login', function (req, res) {
     const emailId = params.emailId
     const password = params.password
 
-    userDB.isValidUser(emailId, password, function (isAuthenticated, authToken, message) {
+    userDB.isValidUser(emailId, password, function (isAuthenticated, foundUser, message) {
         let statusCode = StatusCodes.UNAUTHORIZED;
         if (isAuthenticated) {
             statusCode = StatusCodes.OK;
@@ -29,7 +29,8 @@ router.post('/login', function (req, res) {
         res.json({
             'status': statusCode,
             'data': {
-                'auth_token': authToken,
+                'auth_token': foundUser.authToken,
+                'user': foundUser,
                 'message': message
             }
         });
@@ -45,11 +46,13 @@ router.post('/register', function (req, res) {
     const lastName = params.lastName
 
     let user = new User(uuid4(), firstName, lastName, emailId, password, uuid4());
-    userDB.addUser(user, function (isInserted, message) {
+    userDB.addUser(user, function (isInserted, insertedUser, message) {
         if (isInserted) {
             res.status(StatusCodes.OK)
             res.json({
-                'status': StatusCodes.CREATED
+                'status': StatusCodes.CREATED,
+                'auth_token': insertedUser.authToken,
+                'user': insertedUser
             });
         } else {
             res.status(StatusCodes.FORBIDDEN)
