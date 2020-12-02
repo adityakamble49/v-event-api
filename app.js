@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors')
 const DBManager = require('./dbutils/DBManager');
 
 const index = require('./controller/index.js');
@@ -7,6 +8,7 @@ const meetupGroupController = require('./controller/MeetupGroupController.js');
 const eventController = require('./controller/EventController.js');
 
 const app = express();
+app.use(cors())
 
 app.use('/', index);
 app.use('/user', userController);
