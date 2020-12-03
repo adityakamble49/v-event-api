@@ -7,6 +7,8 @@ const ReasonPhrases = httpStatusCodes.ReasonPhrases;
 
 const UserDB = require('../dbutils/UserDB');
 const MeetupGroupDB = require('../dbutils/MeetupGroupDB');
+const EventDB = require('../dbutils/EventDB');
+
 const MeetupGroup = require("../model/MeetupGroup");
 const uuid4 = require("uuid4");
 
@@ -14,6 +16,7 @@ const urlencodedParser = bodyParser.urlencoded({extended: true});
 
 const userDB = new UserDB();
 const meetupGroupDB = new MeetupGroupDB();
+const eventDB = new EventDB();
 const router = express.Router();
 
 router.use(urlencodedParser);
@@ -329,13 +332,16 @@ router.delete('/:groupId', function (req, res) {
                         });
                     } else {
                         meetupGroupDB.deleteGroup(foundGroup, function (result) {
-                            statusCode = StatusCodes.OK
-                            message = 'Group Deleted Successfully'
-                            res.status(statusCode);
-                            res.json({
-                                'status': statusCode,
-                                'data': {'message': message}
-                            });
+                            eventDB.deleteEventsByGroupId(foundGroup.groupId)
+                                .then(function (result) {
+                                    statusCode = StatusCodes.OK
+                                    message = 'Group Deleted Successfully'
+                                    res.status(statusCode);
+                                    res.json({
+                                        'status': statusCode,
+                                        'data': {'message': message}
+                                    });
+                                });
                         });
                     }
                 });

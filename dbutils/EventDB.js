@@ -74,6 +74,10 @@ class EventDB {
     deleteEvent(eventId) {
         return this.Event.deleteOne({eventId: eventId})
     }
+
+    deleteEventsByGroupId(groupId) {
+        return this.Event.deleteMany({eventMeetupGroupId: groupId})
+    }
 }
 
 module.exports = EventDB;
