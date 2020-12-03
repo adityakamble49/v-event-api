@@ -52,9 +52,9 @@ router.post('/', function (req, res) {
                 .then(function (foundEvents) {
                     for (let i = 0; i < foundEvents.length; i++) {
                         if (foundEvents[i].eventName === eventName) {
-                            res.status(StatusCodes.FORBIDDEN);
+                            res.status(StatusCodes.OK);
                             res.json({
-                                'status': StatusCodes.FORBIDDEN,
+                                'status': StatusCodes.OK,
                                 'data': {
                                     'message': 'Event Name already exist'
                                 }
@@ -268,9 +268,9 @@ router.put('/:eventId', function (req, res) {
                                 });
                             })
                     } else {
-                        res.status(StatusCodes.FORBIDDEN);
+                        res.status(StatusCodes.OK);
                         res.json({
-                            'status': StatusCodes.FORBIDDEN,
+                            'status': StatusCodes.OK,
                             'data': {
                                 'message': 'Event Can be updated by Creator Only',
                             }
@@ -326,9 +326,9 @@ router.delete('/:eventId', function (req, res) {
                                 });
                             });
                     } else {
-                        res.status(StatusCodes.FORBIDDEN);
+                        res.status(StatusCodes.OK);
                         res.json({
-                            'status': StatusCodes.FORBIDDEN,
+                            'status': StatusCodes.OK,
                             'data': {
                                 'message': 'Event Can be deleted by Creator only',
                             }

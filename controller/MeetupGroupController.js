@@ -120,7 +120,7 @@ router.post('/', function (req, res) {
         } else {
             const group = new MeetupGroup(uuid4(), foundUser.userId, groupName, groupDescription, [foundUser.userId], [])
             meetupGroupDB.createGroup(group, function (isCreated, createdGroup, message) {
-                let statusCode = StatusCodes.FORBIDDEN;
+                let statusCode = StatusCodes.OK;
                 if (isCreated) {
                     statusCode = StatusCodes.CREATED;
                 }
@@ -197,7 +197,7 @@ router.post('/participant', function (req, res) {
                                     });
                                 });
                             } else {
-                                statusCode = StatusCodes.FORBIDDEN;
+                                statusCode = StatusCodes.OK;
                                 message = 'Participant already in Group';
                                 res.status(statusCode);
                                 res.json({
@@ -208,9 +208,9 @@ router.post('/participant', function (req, res) {
                                 });
                             }
                         } else {
-                            res.status(StatusCodes.FORBIDDEN);
+                            res.status(StatusCodes.OK);
                             res.json({
-                                'status': StatusCodes.FORBIDDEN,
+                                'status': StatusCodes.OK,
                                 'data': {
                                     'message': 'User Not found'
                                 }

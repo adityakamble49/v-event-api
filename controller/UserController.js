@@ -55,9 +55,9 @@ router.post('/register', function (req, res) {
                 'user': insertedUser
             });
         } else {
-            res.status(StatusCodes.FORBIDDEN)
+            res.status(StatusCodes.OK)
             res.json({
-                'status': StatusCodes.FORBIDDEN,
+                'status': StatusCodes.OK,
                 'data': {
                     'message': 'Registration Failed. ' + message
                 }
